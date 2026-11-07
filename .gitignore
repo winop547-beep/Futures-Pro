@@ -1,6 +1,9 @@
-# 本仓库只保留使用说明与界面截图；程序与源码不纳入版本管理
+# 本仓库只放「使用说明 + 可直接运行的程序」，源码不纳入版本管理
 /*
 !.gitignore
 !README.md
 !docs/
 !docs/*.png
+!dist/
+!dist/*.exe
+!dist/*.txt
