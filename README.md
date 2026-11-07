@@ -153,38 +153,7 @@
 
 ## 技术架构
 
-```mermaid
-flowchart TB
-    subgraph BUILD["构建期 · build.py"]
-        SEAL["seal.py<br/>字节码编译 + 密钥流加密"]
-        PKG["pkg.dat · 37 KB<br/>业务代码"]
-        PAK["web.pak · 360 KB<br/>前端资源（原始 1.13 MB）"]
-        SEAL --> PKG
-        SEAL --> PAK
-    end
-
-    subgraph RUN["运行期"]
-        LAU["launcher.py<br/>解密并注入 sys.modules"]
-        APP["app.py<br/>起服务 · 开窗口 · 单实例 · 窗口救援"]
-        SRV["server.py<br/>8 个本地接口 · 内存分发前端"]
-        DAT["datafeed.py<br/>行情 · K线 · 九周期合成 · 缓存"]
-        LIV["livefeed.py<br/>直播 · 板块强弱 · 多空排行"]
-        MEM["WEB_ASSETS（内存）"]
-        UI["Edge / Chrome --app 独立窗口"]
-
-        LAU --> APP
-        APP --> SRV
-        SRV --> DAT
-        SRV --> LIV
-        SRV --> MEM
-        MEM --> UI
-    end
-
-    PKG --> LAU
-    PAK --> MEM
-    DAT -.->|只读请求| NET[("新浪财经 · 金十数据")]
-    LIV -.->|只读请求| NET
-```
+整体是三层结构：**启动层**（`launcher.py` 解密 → `app.py` 起服务、开窗口）→ **服务层**（`server.py` 8 个本地接口，转发给 `datafeed.py` / `livefeed.py`）→ **呈现层**（解密后的前端资源从内存分发，交给系统浏览器内核渲染）。构建期由 `build.py` 调用 `seal.py`，把业务代码压成 `pkg.dat`、前端压成 `web.pak`。
 
 **为什么不是 Electron，也不是纯网页**
 
