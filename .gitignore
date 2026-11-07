@@ -1,0 +1,25 @@
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ---------- 打包产物（用 GitHub Releases 发布 EXE，不进仓库）----------
+build/
+dist/
+_enc/
+*.spec
+_build_entry.py
+
+# ---------- 本地自检脚本 / 截图 / 临时浏览器配置 ----------
+_*.py
+_*.png
+_*_prof/
+
+# ---------- 编辑器 / 系统 ----------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

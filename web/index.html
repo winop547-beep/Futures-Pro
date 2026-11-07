@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>期货分析系统 · Futures Pro v1.5</title>
+<link rel="icon" href="favicon.ico">
+<script src="guard.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <header id="topbar">
+    <div class="brand">
+      <span class="logo"></span>
+      <div class="brand-txt"><b>期货分析系统</b><i>FUTURES PRO<span class="ver">v1.5</span></i></div>
+    </div>
+
+    <div class="sym">
+      <select id="symbolSelect" title="选择品种"></select>
+      <input id="codeInput" type="text" placeholder="代码：RB0 / RB2601" spellcheck="false" autocomplete="off">
+      <button id="btnLoad" class="btn primary">加载</button>
+    </div>
+
+    <nav id="tfs" class="tfs"></nav>
+
+    <div class="tools">
+      <label class="switch" title="每 30 秒自动刷新">
+        <input type="checkbox" id="autoRef"><span></span><em>自动</em>
+      </label>
+      <button id="btnLeft" class="btn" title="显示 / 隐藏左侧资讯面板">◧ 资讯</button>
+      <button id="btnParams" class="btn">指标参数</button>
+    </div>
+  </header>
+
+  <section id="quotebar">
+    <div class="q-main">
+      <div class="q-name"><b id="qName">—</b><span id="qCode"></span></div>
+      <div class="q-price">
+        <b id="qLast">—</b>
+        <span id="qChg" class="chg">—</span>
+      </div>
+    </div>
+    <div class="q-grid">
+      <div><label>今开</label><b id="qOpen">—</b></div>
+      <div><label>最高</label><b id="qHigh">—</b></div>
+      <div><label>最低</label><b id="qLow">—</b></div>
+      <div><label>成交量</label><b id="qVol">—</b></div>
+      <div><label>持仓量</label><b id="qOi">—</b></div>
+      <div><label>周期</label><b id="qTf">—</b></div>
+    </div>
+  </section>
+
+  <section id="drawbar">
+    <span class="db-label">画线</span>
+
+    <div class="db-tools" id="drawTools">
+      <button data-tool="select" title="光标：选中/拖动/删除">
+        <svg viewBox="0 0 16 16"><path d="M3.2 2.2l9.2 5.6-4.1 1.1-1 4.2z" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button data-tool="trend" title="趋势线（两点）">
+        <svg viewBox="0 0 16 16"><path d="M2.6 13.4l10.8-10.8"/><circle cx="2.6" cy="13.4" r="1.5" fill="currentColor" stroke="none"/><circle cx="13.4" cy="2.6" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button data-tool="hline" title="水平线">
+        <svg viewBox="0 0 16 16"><path d="M1.5 8h13"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button data-tool="vline" title="垂直线">
+        <svg viewBox="0 0 16 16"><path d="M8 1.5v13"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button data-tool="ray" title="射线（无限延伸）">
+        <svg viewBox="0 0 16 16"><path d="M2.4 13.6l11-11"/><path d="M13.6 2.4l-4.2.6 3.6 3.6z" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button data-tool="line" title="直线（两端延伸）">
+        <svg viewBox="0 0 16 16"><path d="M1.4 14.6l13.2-13.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button data-tool="channel" title="平行通道（三点）">
+        <svg viewBox="0 0 16 16"><path d="M1.5 10.2l11.4-8"/><path d="M3.1 14.3l11.4-8" stroke-dasharray="2 1.6"/></svg>
+      </button>
+      <button data-tool="rect" title="矩形">
+        <svg viewBox="0 0 16 16"><rect x="2.5" y="4" width="11" height="8" rx="1"/></svg>
+      </button>
+      <button data-tool="fib" title="黄金分割">
+        <svg viewBox="0 0 16 16"><path d="M2 3h12M4.4 6.6h9.6M2 10.2h12M5.6 13.6h8.4"/></svg>
+      </button>
+      <button data-tool="cycle" title="周期线（等距竖线）">
+        <svg viewBox="0 0 16 16"><path d="M3 2v12M6.6 2v12M10.2 2v12M13.8 2v12" stroke-dasharray="2 2"/></svg>
+      </button>
+      <button data-tool="arrow" title="箭头">
+        <svg viewBox="0 0 16 16"><path d="M2.4 13.6l9.2-9.2"/><path d="M13.4 2.6l-4.6.7 3.9 3.9z" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button data-tool="text" title="文字标注">
+        <svg viewBox="0 0 16 16"><path d="M3 3.6h10M8 3.6v9.2M5.9 12.8h4.2"/></svg>
+      </button>
+    </div>
+
+    <span class="db-sep"></span>
+
+    <div class="db-colors" id="drawColors" title="线条颜色">
+      <button data-color="#e0b155" class="on" style="--c:#e0b155"></button>
+      <button data-color="#f6465d" style="--c:#f6465d"></button>
+      <button data-color="#0ecb81" style="--c:#0ecb81"></button>
+      <button data-color="#4c8dff" style="--c:#4c8dff"></button>
+      <button data-color="#c77dff" style="--c:#c77dff"></button>
+      <button data-color="#dce5f2" style="--c:#dce5f2"></button>
+    </div>
+
+    <div class="db-widths" id="drawWidths" title="线宽">
+      <button data-w="1" class="on">细</button>
+      <button data-w="2">中</button>
+      <button data-w="3">粗</button>
+    </div>
+
+    <span class="db-sep"></span>
+
+    <button class="db-act" data-act="undo" title="撤销（Ctrl+Z）">撤销</button>
+    <button class="db-act" data-act="del" title="删除选中（Delete）">删除</button>
+    <button class="db-act" data-act="clear" title="清空本周期所有画线">清空</button>
+
+    <label class="switch mini" title="显示 / 隐藏画线">
+      <input type="checkbox" id="drawVisible" checked><span></span><em>显示</em>
+    </label>
+
+    <span class="db-hint" id="drawHint">选择工具后在主图上点击落点；右侧面板可调指标</span>
+
+    <span class="db-sep"></span>
+
+    <label class="switch mini" title="背离线：价格创新高、MACD 快线高点却走低＝顶背离（做空机会）；价格创新低、MACD 低点却抬高＝底背离（做多机会）">
+      <input type="checkbox" id="optDiv" checked><span></span><em>背离线</em>
+    </label>
+    <label class="switch mini" title="显示均线">
+      <input type="checkbox" id="optMa" checked><span></span><em>均线</em>
+    </label>
+    <label class="switch mini" title="显示布林带">
+      <input type="checkbox" id="optBoll"><span></span><em>布林带</em>
+    </label>
+    <button id="btnBollCfg" class="db-act" title="布林带参数">BOLL 参数</button>
+  </section>
+
+  <main id="mainArea">
+
+    <aside id="leftbar">
+      <div class="lb-head">
+        <span class="lb-title">市场直播</span>
+        <div class="lb-tabs" id="liveTabs">
+          <button data-ch="global">环球</button>
+          <button data-ch="cn" class="on">国内</button>
+        </div>
+        <button class="lb-ico" id="liveRefresh" title="立即刷新资讯">
+          <svg viewBox="0 0 16 16"><path d="M13.4 8a5.4 5.4 0 1 1-1.6-3.8"/><path d="M12.4 2.2v3.2H9.2"/></svg>
+        </button>
+      </div>
+      <div id="liveList" class="live-list">
+        <div class="lb-empty">正在获取 7×24 快讯…</div>
+      </div>
+
+      <div class="lb-sec">
+        <div class="lb-h">板块强弱<em id="mktTime">—</em></div>
+        <div id="gaugeGrid" class="gauge-grid">
+          <div class="lb-empty">加载中…</div>
+        </div>
+        <div id="mktBreadth" class="mkt-foot"></div>
+      </div>
+
+      <div class="lb-sec">
+        <div class="lb-h">期货多空排行<em>做多前五 · 做空前五</em></div>
+        <div class="rank-wrap">
+          <div class="rank-col">
+            <div class="rk-h up">做多前五</div>
+            <div id="rankLong"></div>
+          </div>
+          <div class="rank-col">
+            <div class="rk-h down">做空前五</div>
+            <div id="rankShort"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div id="chartWrap">
+      <div id="legend"></div>
+      <div id="chart"></div>
+      <canvas id="drawCanvas"></canvas>
+      <div id="loading"><div class="spin"></div><span id="loadTxt">加载行情…</span></div>
+      <div id="toast"></div>
+    </div>
+
+    <aside id="side">
+      <div class="card">
+        <div class="card-title">多空研判<em id="vdTime"></em></div>
+        <div id="vdMain" class="vd-main">—</div>
+        <div id="vdBar" class="vd-bar"><i></i><i></i><i></i><i></i><i></i></div>
+        <div id="vdRows" class="vd-rows"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">最近信号<em>MACD / TRIX / 零轴 / 背离</em></div>
+        <div id="sigList" class="sig-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">区间统计<em id="statRange"></em></div>
+        <div id="statBox" class="stat-box"></div>
+      </div>
+    </aside>
+  </main>
+
+  <footer id="statusbar">
+    <span id="stText">就绪</span>
+    <span class="st-mid"><span class="st-ver">v1.5</span>
+      <span class="st-note">市场直播 · 板块强弱 · 多空排行　|　BOLL 上红下绿 · MACD 0轴上多下空</span></span>
+    <span id="stRight"></span>
+  </footer>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#0ecb81"/>
+    <stop offset="38%" stop-color="#7fc94a"/>
+    <stop offset="58%" stop-color="#d8c24a"/>
+    <stop offset="78%" stop-color="#e8933c"/>
+    <stop offset="100%" stop-color="#f6465d"/>
+  </linearGradient>
+</defs></svg>
+
+<div class="mask" id="mask"></div>
+
+<div class="dialog" id="dlgParams">
+  <div class="dlg-head"><b>指标参数设置</b><button id="dlgClose" class="x">×</button></div>
+  <div class="dlg-body">
+
+    <div class="sec-title">均线 MA<em>最多 6 条，可单独开关 / 类型 / 颜色</em></div>
+    <div id="maRows" class="ma-rows"></div>
+    <button class="btn tiny" id="btnAddMa">＋ 添加一条均线</button>
+
+    <div class="sec-title">布林带 BOLL<em>上轨红 / 中轨金 / 下轨绿</em></div>
+    <div class="row3">
+      <label>周期 N<input type="number" id="bollN" min="2" max="200" step="1"></label>
+      <label>倍数 K<input type="number" id="bollK" min="0.3" max="10" step="0.1"></label>
+      <div class="field"><span>显示</span>
+        <label class="switch"><input type="checkbox" id="optBollDlg"><span></span><em>启用</em></label>
+      </div>
+    </div>
+
+    <div class="sec-title">MACD<em>0 轴之上看多（红）、之下看空（绿）</em></div>
+    <div class="row3">
+      <label>快线<input type="number" id="macdFast" min="2" max="200" step="1"></label>
+      <label>慢线<input type="number" id="macdSlow" min="3" max="400" step="1"></label>
+      <label>信号<input type="number" id="macdSig" min="1" max="100" step="1"></label>
+    </div>
+    <div class="checks" style="padding-top:9px">
+      <label class="switch"><input type="checkbox" id="optZero"><span></span><em>0 轴多空标记</em></label>
+      <label class="switch"><input type="checkbox" id="optDualColor" checked><span></span><em>0 轴分段着色</em></label>
+    </div>
+
+    <div class="sec-title">TRIX<em>金叉标“多”，死叉标“空”</em></div>
+    <div class="row3">
+      <label>周期<input type="number" id="trixN" min="2" max="200" step="1"></label>
+      <label>信号线<input type="number" id="trixM" min="1" max="100" step="1"></label>
+      <label>信号标记<input type="number" id="markCount" min="1" max="30" step="1"></label>
+    </div>
+
+    <div class="sec-title">背离线 DIV<em>价格与 MACD 快线的高低点背离，主图与 MACD 副图同时连线</em></div>
+    <div class="row3">
+      <label>摆动跨度<input type="number" id="divK" min="2" max="20" step="1"></label>
+      <label>最小间隔<input type="number" id="divGap" min="2" max="120" step="1"></label>
+      <label>最多条数<input type="number" id="divMax" min="1" max="30" step="1"></label>
+    </div>
+    <div class="checks" style="padding-top:9px">
+      <label class="switch"><input type="checkbox" id="optDivDlg"><span></span><em>显示背离线</em></label>
+      <span class="dlg-hint">顶背离（红）：价格新高 / DIF 走低 → 做空　底背离（绿）：价格新低 / DIF 抬高 → 做多</span>
+    </div>
+
+    <div class="sec-title">显示面板</div>
+    <div class="checks">
+      <label class="switch"><input type="checkbox" id="optMaDlg"><span></span><em>均线</em></label>
+      <label class="switch"><input type="checkbox" id="optVol"><span></span><em>成交量</em></label>
+      <label class="switch"><input type="checkbox" id="optMacd"><span></span><em>MACD</em></label>
+      <label class="switch"><input type="checkbox" id="optTrix"><span></span><em>TRIX</em></label>
+      <label class="switch"><input type="checkbox" id="optMark"><span></span><em>主图信号</em></label>
+    </div>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn tiny" id="btnDefault">恢复默认</button>
+    <div class="spacer"></div>
+    <button class="btn" id="btnCancel">取消</button>
+    <button class="btn primary" id="btnSave">保存并应用</button>
+  </div>
+</div>
+
+<script src="echarts.min.js"></script>
+<script src="draw.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
